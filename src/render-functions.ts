@@ -4,14 +4,25 @@ import type { PixabayImage } from "./types/pixabay";
 import "izitoast/dist/css/iziToast.min.css";
 import "simplelightbox/dist/simple-lightbox.min.css";
 
-type RenderAPI = {};
+type RenderElements = {
+  gallery: HTMLElement;
+  loader: HTMLElement;
+  loadMoreButton: HTMLElement;
+};
 
-type RenderElements = {};
+type RenderAPI = {
+  createGallery: (images: PixabayImage[]) => void;
+  clearGallery: () => void;
+  showLoader: () => void;
+  hideLoader: () => void;
+  showLoadMoreButton: () => void;
+  hideLoadMoreButton: () => void;
+  showToast: (text: string) => void;
+};
 
 export function initRender(elements: RenderElements): RenderAPI {
   const { gallery, loader, loadMoreButton } = elements;
 
-  // initial UI state
   loader.style.display = "none";
   loadMoreButton.style.display = "none";
 
@@ -20,8 +31,8 @@ export function initRender(elements: RenderElements): RenderAPI {
     captionDelay: 250,
   });
 
-  const createGallery = (images) => {
-    const galleryItems = images
+  const createGallery = (images: PixabayImage[]) => {
+    const markup = images
       .map(
         (image) => `
           <a href="${image.largeImageURL}">
@@ -29,15 +40,13 @@ export function initRender(elements: RenderElements): RenderAPI {
               src="${image.webformatURL}"
               alt="${image.tags}"
               title="${image.tags}"
-              width="100"
-              height="100"
               loading="lazy"
             />
           </a>`
       )
       .join("");
 
-    gallery.insertAdjacentHTML("beforeend", galleryItems);
+    gallery.insertAdjacentHTML("beforeend", markup);
     lightbox.refresh();
   };
 
@@ -62,7 +71,10 @@ export function initRender(elements: RenderElements): RenderAPI {
   };
 
   const showToast = (text: string) => {
-    iziToast.info({ message: text, position: "topRight" });
+    iziToast.info({
+      message: text,
+      position: "topRight",
+    });
   };
 
   return {
